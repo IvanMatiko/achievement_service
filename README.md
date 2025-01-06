@@ -1,109 +1,61 @@
-# Service Template
+# Achievement Service
 
-Стандартный шаблон проекта на SpringBoot
+## Overview
+Achievement Service is a backend application for managing user achievements within a system. It provides APIs for creating, assigning, and tracking achievements, enabling gamification and user engagement through reward systems.
 
-# Использованные технологии
+## Features
+- **Achievement Management:** Create, update, and delete achievements.
+- **User Achievements:** Assign achievements to users and track their progress.
+- **Progress Tracking:** Monitor and update user progress towards achievements.
+- **Integration:** APIs designed for seamless integration with other services.
+- **Swagger Documentation:** Built-in API documentation for easy development.
 
-* [Spring Boot](https://spring.io/projects/spring-boot) – как основной фрэймворк
-* [PostgreSQL](https://www.postgresql.org/) – как основная реляционная база данных
-* [Redis](https://redis.io/) – как кэш и очередь сообщений через pub/sub
-* [testcontainers](https://testcontainers.com/) – для изолированного тестирования с базой данных
-* [Liquibase](https://www.liquibase.org/) – для ведения миграций схемы БД
-* [Gradle](https://gradle.org/) – как система сборки приложения
-* [Lombok](https://projectlombok.org/) – для удобной работы с POJO классами
-* [MapStruct](https://mapstruct.org/) – для удобного маппинга между POJO классами
+## Getting Started
 
-# База данных
+### Prerequisites
+- Java 11+
+- Docker (optional for containerized deployment)
+- Gradle
 
-* База поднимается в отдельном сервисе [infra](../infra)
-* Redis поднимается в единственном инстансе тоже в [infra](../infra)
-* Liquibase сам накатывает нужные миграции на голый PostgreSql при старте приложения
-* В тестах используется [testcontainers](https://testcontainers.com/), в котором тоже запускается отдельный инстанс
-  postgres
-* В коде продемонстрирована работа как с JdbcTemplate, так и с JPA (Hibernate)
+### Steps
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/IvanMatiko/achievement_service.git
+   cd achievement_service
+2. Build the project:
 
-# Как начать разработку начиная с шаблона?
+   ./gradlew build
 
-1. Сначала нужно склонировать этот репозиторий
+3. Run the application:
 
-```shell
-git clone https://github.com/FAANG-School/ServiceTemplate
-```
+   ./gradlew bootRun
 
-2. Далее удаляем служебную директорию для git
+# API Endpoints
 
-```shell
-# Переходим в корневую директорию проекта
-cd ServiceTemplate
-rm -rf .git
-```
+POST /achievements: Create a new achievement.
 
-3. Далее нужно создать совершенно пустой репозиторий в github/gitlab
+GET /achievements: Retrieve a list of achievements.
 
-4. Создаём новый репозиторий локально и коммитим изменения
+GET /achievements/{id}: Get details of a specific achievement.
 
-```shell
-git init
-git remote add origin <link_to_repo>
-git add .
-git commit -m "<msg>"
-```
+PUT /achievements/{id}: Update an achievement.
 
-Готово, можно начинать работу!
+DELETE /achievements/{id}: Delete an achievement.
 
-# Как запустить локально?
+POST /achievements/{id}/assign: Assign an achievement to a user.
 
-Сначала нужно развернуть базу данных из директории [infra](../infra)
+# Technologies Used
 
-Далее собрать gradle проект
+Java: Core programming language.
 
-```shell
-# Нужно запустить из корневой директории, где лежит build.gradle.kts
-gradle build
-```
+Spring Boot: Framework for backend service development.
 
-Запустить jar'ник
+Redis : cache and broker message
 
-```shell
-java -jar build/libs/ServiceTemplate-1.0.jar
-```
+Gradle: Build and dependency management tool.
 
-Но легче всё это делать через IDE
+Swagger: API documentation.
 
-# Код
+Docker: For containerized deployment
 
-RESTful приложения калькулятор с единственным endpoint'ом, который принимает 2 числа и выдает результаты их сложения,
-вычитаяни, умножения и деления
-
-* Обычная трёхслойная
-  архитектура – [Controller](src/main/java/faang/school/achievement/controller), [Service](src/main/java/faang/school/achievement/service), [Repository](src/main/java/faang/school/achievement/repository)
-* Слой Repository реализован и на jdbcTemplate, и на JPA (Hibernate)
-* Написан [GlobalExceptionHandler](src/main/java/faang/school/achievement/controller/GlobalExceptionHandler.java)
-  который умеет возвращать ошибки в формате `{"code":"CODE", "message": "message"}`
-* Используется TTL кэширование вычислений
-  в [CalculationTtlCacheService](src/main/java/faang/school/achievement/service/cache/CalculationTtlCacheService.java)
-* Реализован простой Messaging через [Redis pub/sub](https://redis.io/docs/manual/pubsub/)
-  * [Конфигурация](src/main/java/faang/school/achievement/config/RedisConfig.java) –
-    сетапится [RedisTemplate](https://docs.spring.io/spring-data/redis/docs/current/api/org/springframework/data/redis/core/RedisTemplate.html) –
-    класс, для удобной работы с Redis силами Spring
-  * [Отправитель](src/main/java/faang/school/achievement/service/messaging/RedisCalculationPublisher.java) – генерит
-    рандомные запросы и отправляет в очередь
-  * [Получатель](src/main/java/faang/school/achievement/service/messaging/RedisCalculationSubscriber.java) –
-    получает запросы и отправляет задачи асинхронно выполняться
-    в [воркер](src/main/java/faang/school/achievement/service/worker/CalculationWorker.java)
-
-# Тесты
-
-Написаны только для единственного REST endpoint'а
-* SpringBootTest
-* MockMvc
-* Testcontainers
-* AssertJ
-* JUnit5
-* Parameterized tests
-
-# TODO
-
-* Dockerfile, который подключается к сети запущенной postgres в docker-compose
-* Redis connectivity
-* ...
+Testcontainers: for integration tests
